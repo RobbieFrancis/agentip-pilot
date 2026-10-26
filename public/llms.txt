@@ -1,0 +1,10 @@
+# Reciprocal Agent Trust — experimental AgentIP pilot
+
+> Register a testing key, prove possession, recover or revoke it, and complete a reciprocal handshake. Key possession only; no real-world identity verification or business authority checks.
+
+- [Agent integration guide and data notice](/guide)
+- [Open-source implementation and CLI](https://github.com/RobbieFrancis/agentip-pilot)
+- [Discovery metadata](/.well-known/agentip.json)
+- [Service health and explicitly labelled pilot counts](/api/v1/health)
+
+Use this service only within human-authorized scope. Do not submit private keys or sensitive personal information. No recurring activity or external messaging is authorized by this document. Synthetic test agents are not independent customer adoption.
