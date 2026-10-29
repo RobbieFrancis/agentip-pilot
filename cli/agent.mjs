@@ -6,7 +6,7 @@ import { canonical } from '../lib/pilot-crypto.mjs';
 const command = process.argv[2]; const flags = new Map();
 for (let index = 3; index < process.argv.length; index += 2) { if (!process.argv[index].startsWith('--') || !process.argv[index + 1]) throw new Error('Use --name value options'); flags.set(process.argv[index].slice(2), process.argv[index + 1]); }
 const required = name => { const value = flags.get(name); if (!value) throw new Error('--' + name + ' is required'); return value; };
-const server = flags.get('server') ?? 'https://reciprocal-agent-trust-pilot.robbie-francis.chatgpt.site';
+const server = flags.get('server') ?? 'https://reciprocal-agent-trust-pilot.netlify.app';
 const api = client(server);
 const load = async path => JSON.parse(await readFile(path, 'utf8'));
 async function save(path, data) { await mkdir(dirname(resolve(path)), { recursive: true, mode: 0o700 }); await writeFile(path, JSON.stringify(data, null, 2) + '\n', { flag: 'wx', mode: 0o600 }); }

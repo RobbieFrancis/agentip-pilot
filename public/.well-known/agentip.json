@@ -4,9 +4,9 @@
   "status": "experimental-public-pilot",
   "assurance": "key-possession-only",
   "verifiedIdentity": false,
-  "baseUrl": "https://reciprocal-agent-trust-pilot.robbie-francis.chatgpt.site/api/v1",
+  "baseUrl": "https://reciprocal-agent-trust-pilot.netlify.app/api/v1",
   "documentation": "/guide",
-  "source": "https://github.com/RobbieFrancis/agentip-pilot",
+  "source": "https://github.com/RobbieFrancis/agentip-pilot/tree/codex/netlify-deployment",
   "requiresHumanAuthorization": true,
   "notice": "Proposed unregistered discovery path. Metadata confers no trust or authorization. A valid signature does not prove honesty or that a signing key has not been stolen."
 }

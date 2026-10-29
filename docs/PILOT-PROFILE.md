@@ -12,7 +12,7 @@ The service returns a stored challenge with kind/version, random ID and 256-bit 
 
 POST `/api/v1/proofs` with `proof`, a compact JWS. Protected headers are exactly `{alg: "Ed25519", typ: "agentip-pilot-proof+jwt"}`. Payload fields are exactly `{kind: "agentip-pilot-proof", version: "0.2", isAgent: true, challenge, publicKey}`. Signature covers the original encoded header and payload, with no padding. The server checks the public key against its stored expected key and compares the full signed challenge to the stored copy. It refuses unexpected fields, wrong algorithms/types, malformed encodings, mismatched keys/context, expiry and replay. The JSON parser uses JavaScript last-member-wins semantics; clients must emit unique members. Interoperability with other implementations remains untested.
 
-Challenges are consumed using a conditional database update inside a D1 batch transaction. All state-changing statements are conditional on that attempt's consumption marker. Agent primary-key equality, active state, and relevant session state are rechecked in SQL for state changes. A competing submission cannot reuse the consumed challenge. Public/recovery keys have unique constraints. The pilot has a maximum of 1,000 total registrations and bounded challenge/session issuance rates.
+Challenges are consumed using a conditional database update inside a PostgreSQL transaction (with serialized state-transition batches). All state-changing statements are conditional on that attempt's consumption marker. Agent primary-key equality, active state, and relevant session state are rechecked in SQL for state changes. A competing submission cannot reuse the consumed challenge. Public/recovery keys have unique constraints. The pilot has a maximum of 1,000 total registrations and bounded challenge/session issuance rates.
 
 ## Authentication, revocation and rotation
 
@@ -34,8 +34,12 @@ GET `/api/v1/sessions/{id}` recalculates current state rather than treating a pa
 
 ## Storage and abuse limits
 
-Cloudflare D1 stores public profiles/keys, challenges, sessions, confirmations, minimal events and rate counters. No server signing credential or user private key is stored. Network identifiers are hashed using a server-secret pepper and daily epoch; raw addresses are not stored by application tables. Rate counters expire within two windows (20 minutes); expired rows are removed on later challenges. Rate limiting keys use the platform's trusted network header. An upstream network change or proxy can affect per-network limits; global quotas and enrollment capacity also apply.
+Netlify Database (PostgreSQL) stores public profiles/keys, challenges, sessions, confirmations, minimal events and rate counters. No server signing credential or user private key is stored. Network identifiers are hashed using a server-secret pepper and daily epoch; raw addresses are not stored by application tables. Rate counters expire within two windows (20 minutes); expired rows are removed on later challenges. Rate limiting keys use Netlify’s trusted request context IP; caller-provided Cloudflare/IP headers are replaced before verification. An upstream network change or proxy can affect per-network limits; global quotas and enrollment capacity also apply.
 
 Events are kept up to 30 days with cleanup during later challenges. Agent records persist until operator cleanup; revocation removes profile text but retains keys and status. Hosting infrastructure has its own operational logs. This event store is not an immutable audit ledger and has no external integrity checkpoint.
 
 The service requires HTTPS, explicit browser-origin matching, a bounded JSON body and fixed allowed operations. CLI clients reject redirects and require expected challenge context. The public service is not independently audited and is unsuitable for consequential contracts, payments, identity screening or security accreditation.
+
+## Netlify deployment namespace
+
+This branch serves the Netlify origin. Its registry is separate from the earlier Sites/Cloudflare deployment. Public keys and registration IDs are not automatically imported; existing records remain available at their original service. Recovery files and CLI identities bind to their original service origin. PostgreSQL state-transition batches use one transaction-scoped advisory lock across function instances. Hosted migrations, not runtime schema creation, establish the tables.

@@ -4,7 +4,7 @@ Humans and **authorized agents are explicitly invited to author issues, RFCs, co
 
 Before changing code, read README.md, docs/PILOT-PROFILE.md, CONTRIBUTING.md and SECURITY.md. Preserve the provisional name and key-possession-only assurance. Keep work within the requested scope. Do not use real identity data, secrets, customer data or private keys as fixtures. Do not fetch supplied key URLs or add implicit trust.
 
-Implement locally and run `node --test test/*.test.mjs`. For application changes, run `node node_modules/typescript/bin/tsc --noEmit --incremental false` and the supported Sites build. For website changes, exercise success and rejection situations and keep keyboard/mobile behavior usable. Keep the agent CLI and proof core dependency-free; preserve the supported hosting runtime. No AI provider API is required.
+Implement locally and run `node --test test/*.test.mjs`. For application changes, run `node node_modules/typescript/bin/tsc --noEmit --incremental false` and `npm run build` for this Netlify deployment branch. For website changes, exercise success and rejection situations and keep keyboard/mobile behavior usable. Keep the agent CLI and proof core dependency-free; preserve the Netlify Functions/Postgres transaction and origin checks. No AI provider API is required.
 
 For an authorized issue/RFC/PR, disclose agent involvement, the human sponsor or authorization context without private information, the problem, reproducible evidence, proposed change, tests and remaining risks. A human sponsor's name may be omitted for privacy if the authorization scope is described. Never impersonate a human or claim a real-world verification that was not performed.
 

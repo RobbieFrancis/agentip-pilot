@@ -2,16 +2,16 @@
 
 Register a testing agent key, prove possession, recover or revoke it, and complete a reciprocal handshake. **This service verifies key possession only. It does not verify people, businesses, property ownership, or authority to transact.** The AgentIP name is provisional and unaffiliated with agentip.io.
 
-Pilot: https://reciprocal-agent-trust-pilot.robbie-francis.chatgpt.site
+Pilot: https://reciprocal-agent-trust-pilot.netlify.app
 
-Guide and data notice: https://reciprocal-agent-trust-pilot.robbie-francis.chatgpt.site/guide
+Guide and data notice: https://reciprocal-agent-trust-pilot.netlify.app/guide
 
 ## Try it from an agent
 
 Node.js 22.18+ is required. The agent CLI has no package dependencies. Read the source before running it. Choose separate primary and recovery locations; do not place private keys in this repository or expose them to an LLM.
 
 ```sh
-git clone https://github.com/RobbieFrancis/agentip-pilot.git
+git clone --branch codex/netlify-deployment https://github.com/RobbieFrancis/agentip-pilot.git
 cd agentip-pilot
 node cli/agent.mjs signup --name MyTestingAgent \
   --identity /path/to/private/primary.json \
@@ -66,16 +66,21 @@ See [the complete profile](docs/PILOT-PROFILE.md). `lib/client.mjs` exports `cli
 
 ## Build and verify
 
-The hosted app uses the included Sites/Vinext runtime and Cloudflare D1. The CLI and core tests use only Node built-ins.
+This deployment branch uses a Next.js static website, a native Netlify Function and Netlify Database (PostgreSQL). The CLI and cryptographic core have no runtime package dependencies. The original Sites deployment remains separate, with its existing registrations preserved. Netlify starts a fresh, origin-bound registry; identities do not transfer automatically between the two service origins.
 
 ```sh
 node --test test/*.test.mjs
 npm ci
-npm run db:generate  # only after changing db/schema.ts
 npm run build
 ```
 
-Schema migrations are in `drizzle/`. Apply them to a fresh local D1 preview using the documented Sites workflow; deployment applies hosted migrations. Configure the secret `RATE_LIMIT_PEPPER` through hosting configuration, never in source. A local `.dev.vars` may hold a separate development value. `npm run dev` starts a loopback preview. Production endpoints require the secret and database binding; missing configuration fails closed.
+Netlify migrations are in `netlify/database/migrations/` and are applied by the hosted deploy. Do not apply DDL directly to the hosted database. `drizzle/` retains the SQLite reference schema for the same protocol tests.
+
+Configure `PILOT_ORIGIN` as the exact canonical HTTPS site origin and `RATE_LIMIT_PEPPER` as a random server-side environment value, both in the Functions scope. Netlify supplies the database connection. Missing configuration fails closed. Request rate limits use Netlify’s trusted `context.ip`, replacing any caller-supplied Cloudflare/IP header. State-changing batches use a PostgreSQL transaction and a shared transaction-scoped advisory lock; duplicate-key failures roll back challenge consumption.
+
+Run `PILOT_TEST_DATABASE_URL=postgresql://...@127.0.0.1:PORT/postgres npm run test:postgres` against an isolated local PostgreSQL database to run the same behavior/concurrency tests on PostgreSQL. The test harness refuses non-loopback database hosts and uses isolated temporary schemas. `npm run dev` previews the static site; `netlify dev` is needed for the complete Functions/Database environment. `.netlify/` is ignored; never commit its account/site state.
+
+This Netlify port was prepared with AI assistance under the project owner’s explicit build and deployment authorisation.
 
 Tests cover registration, wrong-key spoofing, replay and concurrent proof use, expiry, scope binding, independent recovery, stale-key rejection, reciprocal completion, revocation/rotation invalidation, rate limits, persistent state, and client context checks. Tests are not an independent audit.
 

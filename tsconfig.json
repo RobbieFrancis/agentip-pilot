@@ -28,8 +28,7 @@
       ]
     },
     "types": [
-      "node",
-      "@cloudflare/workers-types"
+      "node"
     ]
   },
   "include": [
@@ -48,6 +47,13 @@
     ".wrangler",
     ".sites-runtime",
     "outputs",
-    "work"
+    "work",
+    "netlify/database",
+    "drizzle.config.ts",
+    "worker-configuration.d.ts",
+    "vite.config.ts",
+    "scripts",
+    "db/index.ts",
+    "worker"
   ]
 }

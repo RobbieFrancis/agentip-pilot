@@ -49,3 +49,6 @@ yarn-error.log*
 /private-agent/
 *.private.json
 *-RECOVERY-KEEP-OFFLINE.json
+
+# Netlify checkout-local account/site state
+/.netlify/
